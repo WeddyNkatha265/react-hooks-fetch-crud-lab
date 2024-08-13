@@ -1,38 +1,45 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import QuestionItem from "./QuestionItem";
 
 function QuestionList() {
-  const [questions, setQuestions] = useState([]);
+
+  const[displayedQuestions , setDisplayedQuestions]=useState([])
 
   useEffect(() => {
     fetch("http://localhost:4000/questions")
-      .then((response) => response.json())
-      .then((data) => setQuestions(data))
-  }, []);
+    .then((res) => res.json())
+    .then((questionData) => setDisplayedQuestions(questionData) )
+  },[])
 
-  const onDeleteQuestion = (id) => {
-    setQuestions(questions.filter((q) => q.id !== id));
-  };
+  function handleDeleteQuestion(deletedQuestion) {
+    const updatedItems = displayedQuestions.filter((displayedQuestion) => displayedQuestion.id !== deletedQuestion.id);
+    setDisplayedQuestions(updatedItems);
+  }
+
+  function handleQuestionUpdate(updatedQuestion){
+    
+    const updatedQuestions = displayedQuestions.map((question) => {
+      if (question.id === updatedQuestion.id) {
+        return updatedQuestion;
+      }
+      return question;
+    });
+    setDisplayedQuestions(updatedQuestions);
 
 
-  const onUpdateCorrectAnswer = (id, newCorrectIndex) => {
-    setQuestions((prevQuestions) =>
-      prevQuestions.map((question) => (question.id === id ? { ...question, correctIndex: newCorrectIndex } : question))
-    );
-  };
-
+  }
   return (
     <section>
       <h1>Quiz Questions</h1>
-      <ul>
-        {questions.map((question) => (
-          <QuestionItem
-            key={question.id}
-            question={question}
-            onDeleteQuestion={onDeleteQuestion}
-            onUpdateCorrectAnswer={onUpdateCorrectAnswer}
-          />
-        ))}
+
+      <ul>{displayedQuestions.map((displayedQuestion) =>(
+        <QuestionItem  key={displayedQuestion.id} 
+                       question={displayedQuestion} 
+                       onDelete={handleDeleteQuestion} 
+                       onChange={handleQuestionUpdate}
+                       />
+      ))
+        }
       </ul>
     </section>
   );
